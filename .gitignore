@@ -1,0 +1,17 @@
+# Local working and generated-delivery folders
+work/
+outputs/
+
+# Database exports and large source datasets
+*.csv
+*.xlsx
+*.xls
+*.zip
+*.sql.gz
+
+# Local configuration and editor files
+.env
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
