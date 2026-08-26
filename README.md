@@ -1,8 +1,20 @@
+<div align="center">
+
 # 🚦 UK Road Safety SQL Analyst Project
+
+### 50 Analytical Questions • MySQL 8.0+ • STATS19 2021–2025
+
+<a href="https://www.gov.uk/government/statistical-data-sets/road-safety-open-data">
+  <img src="https://img.shields.io/badge/Data%20Source-UK%20Department%20for%20Transport-006853?style=for-the-badge" alt="Data source: UK Department for Transport">
+</a>
+
+</div>
 
 A SQL case study using the **UK Department for Transport STATS19 Road Safety Open Data** to analyse police-reported personal-injury collisions, vehicles and casualties across Great Britain from **2021 to 2025**.
 
 The project contains **50 analytical questions** designed to demonstrate practical SQL skills, including data-quality validation, joins, CTEs, conditional aggregation, window functions, rate calculations and analytical interpretation.
+
+> **Educational project disclaimer:** This is an independent portfolio analysis and is not affiliated with or endorsed by the UK Department for Transport. The badge identifies the official data source; it is not an official departmental logo.
 
 ---
 
@@ -305,3 +317,4 @@ This project was created as a SQL portfolio case study to demonstrate data valid
 ---
 
 ⭐ If you find this project useful, consider starring the repository.
+
