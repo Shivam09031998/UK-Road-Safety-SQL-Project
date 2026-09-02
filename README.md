@@ -37,11 +37,11 @@ The project also demonstrates how to choose the correct **data grain and denomin
 ## 🧰 Tech Stack
 
 - **Database:** MySQL 8.0+
-- **Tools:** MySQL Workbench / Visual Studio Code
+- **Database tool:** MySQL Workbench
 - **Language:** SQL
 - **Data source:** UK Department for Transport, STATS19
 - **Dataset period:** 2021–2025
-- **Analysis format:** GitHub SQL case-study notebook
+- **Project format:** SQL case study hosted on GitHub
 
 ---
 
@@ -216,7 +216,7 @@ Other factors—including speed, rurality, road design, traffic exposure and roa
 - At **00:00**, the supplied analysis recorded **8,110 collisions**, including **2,508 severe collisions**, producing a **30.92% severe-collision rate**.
 - **Light-condition code 6 — Darkness with no lighting** recorded a **34.95% observed severe-collision rate** in the supplied results.
 
-Only outputs already verified in the project are listed here. Remaining findings should be added after the final SQL notebook has been executed against the complete database.
+Only outputs already verified in the project are listed here. Remaining findings should be added after the final SQL case study has been executed against the complete database.
 
 ---
 
@@ -255,7 +255,7 @@ UK-Road-Safety-SQL-Project/
 └── uk_road_safety_sql_analyst_project_q1_q50.sql
 ```
 
-The SQL notebook contains the complete Questions 1–50 analysis with:
+The SQL case-study file contains the complete Questions 1–50 analysis with:
 
 ```text
 QUESTION
@@ -271,8 +271,8 @@ ANALYTICAL CAUTION — where required
 
 1. Download the DfT collision, vehicle and casualty data for 2021–2025.
 2. Import the data into MySQL tables named `collisions`, `vehicles` and `casualties`.
-3. Confirm that the imported column names match those used in the SQL notebook.
-4. Open `uk_road_safety_sql_analyst_project_q1_q50.sql` in MySQL Workbench or VS Code.
+3. Confirm that the imported column names match those used in the SQL case-study file.
+4. Open `uk_road_safety_sql_analyst_project_q1_q50.sql` in MySQL Workbench.
 5. Select the required database:
 
 ```sql
@@ -317,4 +317,3 @@ This project was created as a SQL portfolio case study to demonstrate data valid
 ---
 
 ⭐ If you find this project useful, consider starring the repository.
-
