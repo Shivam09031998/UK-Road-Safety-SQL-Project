@@ -2,318 +2,157 @@
 
 # 🚦 UK Road Safety SQL Analyst Project
 
-### 50 Analytical Questions • MySQL 8.0+ • STATS19 2021–2025
+### 50 analytical questions • MySQL 8.0+ • STATS19 data, 2021–2025
 
-<a href="https://www.gov.uk/government/statistical-data-sets/road-safety-open-data">
-  <img src="https://img.shields.io/badge/Data%20Source-UK%20Department%20for%20Transport-006853?style=for-the-badge" alt="Data source: UK Department for Transport">
-</a>
+[![Data source: UK Department for Transport](https://img.shields.io/badge/Data%20Source-UK%20Department%20for%20Transport-006853?style=for-the-badge)](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data)
 
 </div>
 
-A SQL case study using the **UK Department for Transport STATS19 Road Safety Open Data** to analyse police-reported personal-injury collisions, vehicles and casualties across Great Britain from **2021 to 2025**.
+A portfolio case study analysing police-reported personal-injury collisions, vehicles and casualties in Great Britain using the UK Department for Transport (DfT) STATS19 Road Safety Open Data.
 
-The project contains **50 analytical questions** designed to demonstrate practical SQL skills, including data-quality validation, joins, CTEs, conditional aggregation, window functions, rate calculations and analytical interpretation.
+The accompanying SQL script answers 50 questions covering data validation, trends, severity, time, geography, road conditions, vehicles and vulnerable road users. It also demonstrates careful use of data grain, denominators and caveats so that results are not overstated.
 
-> **Educational project disclaimer:** This is an independent portfolio analysis and is not affiliated with or endorsed by the UK Department for Transport. The badge identifies the official data source; it is not an official departmental logo.
+> **Disclaimer:** This is an independent educational portfolio project. It is not affiliated with or endorsed by the DfT. The badge above identifies the data source; it is not an official departmental logo.
 
----
+## Project objective
 
-## 📊 Project Objective
+The project investigates:
 
-To explore five years of UK road-safety data and identify meaningful patterns in:
+- collision and casualty trends;
+- fatal and serious collision severity;
+- time-of-day and seasonal patterns;
+- geographic and road-environment differences;
+- weather, lighting and road-surface conditions;
+- vehicle and driver characteristics; and
+- pedestrian- and cyclist-casualty collisions.
 
-- Collision and casualty trends
-- Fatal and serious collision severity
-- Time-of-day and seasonal patterns
-- Geographic and road-environment differences
-- Weather, lighting and road-surface conditions
-- Vehicle and driver characteristics
-- Pedestrian and cyclist collisions
-
-The project also demonstrates how to choose the correct **data grain and denominator**, avoid double-counting after joins, distinguish collision volume from severity rate, and communicate findings without making unsupported causal claims.
-
----
-
-## 🧰 Tech Stack
+## Tools and data
 
 - **Database:** MySQL 8.0+
 - **Database tool:** MySQL Workbench
 - **Language:** SQL
-- **Data source:** UK Department for Transport, STATS19
-- **Dataset period:** 2021–2025
+- **Data source:** UK Department for Transport, STATS19 Road Safety Open Data
+- **Loaded dataset period:** 1 January 2021 to 31 December 2025
 - **Project format:** SQL case study hosted on GitHub
 
----
+## Dataset overview
 
-## 🗂️ Dataset Overview
+The analysis uses three related tables joined by **collision_index**:
 
-The project uses three related STATS19 tables:
-
-| Table | Data grain | Verified records |
+| Table | Grain | Verified row count |
 |---|---|---:|
-| `collisions` | One row per collision | 513,801 |
-| `vehicles` | One row per vehicle involved | 937,265 |
-| `casualties` | One row per casualty | 652,821 |
+| collisions | One row per collision | 513,801 |
+| vehicles | One row per vehicle involved | 937,265 |
+| casualties | One row per casualty | 652,821 |
 
-The tables are connected through `collision_index`.
+One collision can involve multiple vehicles and casualties. A raw join therefore repeats collision rows. The script protects collision-level measures by using **COUNT(DISTINCT collision_index)**, conditional distinct counts, or pre-aggregated CTEs.
 
-```text
-collisions
-    │
-    ├── one collision can involve many vehicles
-    │       └── vehicles
-    │
-    └── one collision can result in many casualties
-            └── casualties
-```
-
-### Important grain rule
-
-The three tables cannot be joined and counted without considering their different grains. A collision involving multiple vehicles or casualties will appear several times after a raw join.
-
-To prevent double-counting, the project uses:
-
-- `COUNT(DISTINCT collision_index)` when measuring collisions after a join
-- Separate CTEs to aggregate collision and casualty tables before joining
-- Conditional distinct counts for vehicle-type involvement analysis
-
----
-
-## 🚑 Collision Severity Definition
-
-The official collision-severity coding used in the project is:
+## Severity definition
 
 | Code | Severity |
 |---:|---|
-| `1` | Fatal |
-| `2` | Serious |
-| `3` | Slight |
+| 1 | Fatal |
+| 2 | Serious |
+| 3 | Slight |
 
-For this analysis, a **severe collision** is defined as:
+A **severe collision** is a fatal or serious collision: **collision_severity IN (1, 2)**. This is a collision-level classification, not a casualty-severity measure.
 
-```sql
-collision_severity IN (1, 2)
-```
+## Analysis structure
 
-This includes fatal and serious collisions.
+| Section | Questions | Coverage |
+|---|---:|---|
+| Data quality and validation | 1–11 | Counts, uniqueness, reconciliation, date coverage, duplicates, missing/unknown codes, orphan records and severity codes |
+| Five-year performance and severity | 12–18 | Annual counts and percentages, year-over-year change, peak KPIs and casualties per collision |
+| Time-based analysis | 19–24 | Month, weekday, hour, year-month and day-hour patterns |
+| Geographic and road analysis | 25–36 | Urban/rural area, police force, LSOA, speed limit, road type, junctions and road class |
+| Environmental conditions | 37–41 | Weather, road surface, lighting and combined environmental categories |
+| Vehicles and vulnerable road users | 42–50 | Vehicle type, vehicle and driver age, driver sex, pedestrian and cyclist collisions, and lower-volume/high-severity categories |
 
----
+## SQL skills demonstrated
 
-## 🔍 Analysis Sections
+- aggregate functions: COUNT(), SUM(), AVG(), MIN() and MAX();
+- conditional aggregation with CASE WHEN;
+- INNER JOIN, LEFT JOIN and CROSS JOIN;
+- common table expressions with WITH;
+- window functions including LAG() and RANK();
+- subqueries, NOT EXISTS and UNION ALL;
+- GROUP BY, HAVING and distinct counting;
+- date and time functions including YEAR(), MONTH(), MONTHNAME() and HOUR();
+- percentage and rate calculations with explicit decimal arithmetic;
+- division-by-zero protection with NULLIF(); and
+- minimum-count thresholds for more stable rankings.
 
-The 50 questions are organised into six sections.
+## Analytical approach
 
-### 1. Data Quality and Validation — Questions 1–11
+**Volume is not risk.** A common category may contain more severe collisions in absolute terms while a less common category has a higher severe-collision percentage. The script reports volume and within-category severity rate separately.
 
-- Count collision, vehicle and casualty records
-- Confirm the number of unique collisions
-- Reconcile recorded and calculated casualty totals
-- Validate the 2021–2025 date range
-- Detect duplicate collision, vehicle and casualty records
-- Audit SQL `NULL` values and coded unknown values
-- Identify orphan vehicle or casualty records
-- Validate collision-severity codes
+**The denominator must match the question.** Collision severity uses collisions as the denominator. Vehicle analyses count distinct collisions involving each vehicle type. Casualties per collision compares casualty rows with collision rows. Geographic results are not population- or traffic-exposure rates.
 
-### 2. Five-Year Performance and Severity — Questions 12–18
+**Association is not causation.** Differences across road, environmental and vehicle categories are descriptive. They may also reflect traffic exposure, speed, rurality, road design, time of day and road-user mix.
 
-- Count fatal, serious and slight collisions by year
-- Calculate yearly severity percentages
-- Measure year-over-year KPI changes using `LAG()`
-- Identify the peak year for each KPI
-- Calculate the overall severe-collision percentage
-- Calculate average casualties per collision
-- Compare yearly averages using full-precision values
+## Verified outputs
 
-### 3. Time-Based Analysis — Questions 19–24
+Only results explicitly recorded as verified in the SQL script are listed here:
 
-- Analyse collisions by month
-- Compare days of the week
-- Rank hours by collision volume
-- Rank hours by severe-collision rate
-- Identify high-volume year-month combinations
-- Find the busiest day-and-hour periods
+- **513,801** collision records and unique collision IDs;
+- **937,265** vehicle records;
+- **652,821** casualty records;
+- date coverage from **1 January 2021 to 31 December 2025**;
+- at **00:00**, **8,110** collisions, including **2,508** severe collisions, for an observed severe-collision rate of **30.92%**; and
+- light-condition code **6** (darkness with no lighting) had an observed severe-collision rate of **34.95%** in the supplied run.
 
-### 4. Geographic and Road Analysis — Questions 25–36
+The remaining queries must be executed against the complete database before additional findings are presented as verified.
 
-- Compare urban and rural areas
-- Rank police-force areas by volume and severity
-- Identify high-volume and high-severity LSOAs
-- Analyse speed limits, road types and junctions
-- Compare casualties per collision geographically
-- Examine combined urban/rural and speed-limit patterns
-- Compare collision severity with vehicle and casualty counts
+## Environmental coding
 
-### 5. Environmental Conditions — Questions 37–41
+Weather and road-surface conditions are separate STATS19 fields. The SQL script retains raw codes alongside readable labels for auditability.
 
-- Analyse verified DfT weather-condition codes
-- Compare road-surface conditions
-- Compare daylight and darkness conditions
-- Analyse combined weather, lighting and surface conditions
-- Rank environmental categories by observed severe-collision rate
+- **Weather examples:** fine, raining, snowing, high winds, fog or mist, other and unknown.
+- **Road-surface examples:** dry, wet or damp, snow, frost or ice, flood, oil or diesel, mud and unknown.
+- **Light examples:** daylight and the documented darkness categories.
 
-### 6. Vehicles and Vulnerable Road Users — Questions 42–50
+Use the DfT data guide for the exact release when interpreting coded fields, particularly across specification changes.
 
-- Rank vehicle types by collision involvement
-- Compare severe-collision volume and rate by vehicle type
-- Analyse vehicle age and driver age
-- Compare driver-sex categories
-- Examine pedestrian-casualty collisions
-- Examine cyclist-casualty collisions
-- Identify lower-volume vehicle types with above-average severity
+## Repository structure
 
----
-
-## 💻 SQL Skills Demonstrated
-
-- Aggregate functions: `COUNT()`, `SUM()`, `AVG()`, `MIN()` and `MAX()`
-- Conditional aggregation with `CASE WHEN`
-- `INNER JOIN` and `LEFT JOIN`
-- Common table expressions using `WITH`
-- Window functions including `LAG()` and `RANK()`
-- Subqueries and `NOT EXISTS`
-- `COUNT(DISTINCT ...)` for grain-safe analysis
-- `GROUP BY`, `HAVING` and `UNION ALL`
-- Date and time functions such as `YEAR()`, `MONTH()` and `HOUR()`
-- Percentage and rate calculations using `100.0`
-- Division-by-zero protection using `NULLIF()`
-- Missing-value and coded-unknown auditing
-- Minimum sample-size thresholds for more stable rankings
-
----
-
-## 🧠 Analytical Principles
-
-### Volume is not the same as risk
-
-A category can contain many severe collisions because it is common, while another category can contain fewer severe collisions but have a higher severe-collision percentage.
-
-The project therefore reports both:
-
-- **Severe-collision volume:** number of fatal or serious collisions
-- **Severe-collision rate:** severe collisions divided by all collisions in the category
-
-### Denominators must match the question
-
-Examples:
-
-- Collision severity percentage uses total collisions as the denominator
-- Vehicle involvement rate uses distinct collisions involving that vehicle type
-- Casualties per collision uses casualty rows divided by collision rows
-- Geographic collision rates are not population or traffic-exposure rates
-
-### Association does not prove causation
-
-Environmental, vehicle and road categories are compared using observed rates. These results do not prove that an individual condition caused a severe collision.
-
-Other factors—including speed, rurality, road design, traffic exposure and road-user mix—may influence the observed relationship.
-
----
-
-## 📌 Selected Verified Findings
-
-- The dataset contains **513,801 collisions**, **937,265 vehicle records** and **652,821 casualty records**.
-- It covers **1 January 2021 to 31 December 2025**.
-- At **00:00**, the supplied analysis recorded **8,110 collisions**, including **2,508 severe collisions**, producing a **30.92% severe-collision rate**.
-- **Light-condition code 6 — Darkness with no lighting** recorded a **34.95% observed severe-collision rate** in the supplied results.
-
-Only outputs already verified in the project are listed here. Remaining findings should be added after the final SQL case study has been executed against the complete database.
-
----
-
-## 🌦️ Environmental Coding Correction
-
-The project uses the official DfT distinctions between weather and road-surface conditions.
-
-**Weather conditions** include:
-
-- Fine
-- Raining
-- Snowing
-- High winds
-- Fog or mist
-
-**Road-surface conditions** include:
-
-- Dry
-- Wet or damp
-- Snow
-- Frost or ice
-- Flood
-- Oil or diesel
-- Mud
-
-The raw official code is retained in query outputs so every category remains auditable against the DfT data guide.
-
----
-
-## 📁 Project Structure
-
-```text
+~~~text
 UK-Road-Safety-SQL-Project/
-│
 ├── README.md
 └── uk_road_safety_sql_analyst_project_q1_q50.sql
-```
+~~~
 
-The SQL case-study file contains the complete Questions 1–50 analysis with:
+The SQL file contains Questions 1–50, explanatory notes, query logic, result interpretations, analytical cautions and the verified outputs available for this project.
 
-```text
-QUESTION
-INTERPRETATION
-SQL ANSWER
-RESULT INTERPRETATION
-ANALYTICAL CAUTION — where required
-```
+## How to run the analysis
 
----
+1. Download the DfT collision, vehicle and casualty files for the required 2021–2025 releases.
+2. Import them into MySQL tables named **collisions**, **vehicles** and **casualties**.
+3. Confirm that imported column names match the SQL script.
+4. Open **uk_road_safety_sql_analyst_project_q1_q50.sql** in MySQL Workbench.
+5. Select the required database with **USE your_database_name;**
+6. Run Questions 1–11 first and investigate unexpected duplicates, missing/unknown codes, reconciliation differences or orphan records.
+7. Execute the remaining questions individually and record only outputs verified from the database.
 
-## ▶️ How to Use This Project
+## Limitations
 
-1. Download the DfT collision, vehicle and casualty data for 2021–2025.
-2. Import the data into MySQL tables named `collisions`, `vehicles` and `casualties`.
-3. Confirm that the imported column names match those used in the SQL case-study file.
-4. Open `uk_road_safety_sql_analyst_project_q1_q50.sql` in MySQL Workbench.
-5. Select the required database:
-
-```sql
-USE your_database_name;
-```
-
-6. Run the data-quality section first.
-7. Investigate unexpected duplicates, missing codes or orphan records before running the analytical sections.
-8. Execute each question individually and record verified outputs in the final project summary.
-
----
-
-## ⚠️ Project Limitations
-
-- STATS19 includes police-reported personal-injury collisions, not every road incident.
-- The analysis does not contain traffic volume, distance travelled or population exposure denominators.
-- Results show observed associations and should not be interpreted as causal effects.
-- Coded missing or unknown values can exist even when SQL `NULL` rates are low.
-- Rates from small categories can be unstable; minimum-count thresholds reduce but do not remove this issue.
-- A collision may appear in several vehicle involvement categories, so those category totals should not be added together.
-- Injury-based severity reporting can affect comparability between police forces and years.
-- The data spans the transition to the 2024 STATS19 specification, which different police forces adopted at different times.
+- STATS19 covers police-reported personal-injury collisions, not every road incident.
+- The analysis has no traffic-volume, distance-travelled or population-exposure denominators.
+- Results are descriptive associations and do not establish causal effects.
+- Coded missing or unknown values may exist even when SQL NULL rates are low.
+- Small categories can produce unstable rates. Disclosed minimum-count thresholds reduce, but do not eliminate, this problem.
+- A collision may appear in multiple vehicle-type or vehicle-age groups, so those category totals are not mutually exclusive and must not be summed.
+- Injury-based reporting can affect comparisons of recorded severity across police forces and years.
+- The period spans the transition to the 2024 STATS19 specification, which police forces adopted at different times; definition and reporting changes may create breaks in time series.
 - Geographic rankings describe collision locations, not the home areas of the people involved.
 
----
+## Data source
 
-## 📚 Data Source
+[UK Department for Transport — Road Safety Open Data](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data)
 
-**UK Department for Transport — Road Safety Open Data**  
-https://www.gov.uk/government/statistical-data-sets/road-safety-open-data
+Consult the DfT data guide supplied with each downloaded release to decode categorical fields and identify specification changes.
 
-The DfT open-dataset data guide should be used to decode all categorical fields and identify specification changes.
-
----
-
-## 👤 Author
+## Author
 
 **Shivam Garg**
 
-This project was created as a SQL portfolio case study to demonstrate data validation, exploratory analysis, analytical reasoning and clear communication of road-safety findings.
-
----
-
-⭐ If you find this project useful, consider starring the repository.
+Created as a SQL portfolio case study demonstrating data validation, exploratory analysis, analytical reasoning and clear communication of road-safety findings.
